@@ -1,15 +1,15 @@
-currentBuild.displayName = "online-shopping-#"+currentBuild.number
+//currentBuild.displayName = "online-shopping-#"+currentBuild.number
 
 pipeline{
     agent any
     
-    environment{
+  /*  environment{
         PATH = "/opt/maven3/bin:$PATH"
-    }
+    }*/
     stages{
         stage("Git Checkout"){
             steps{
-                git credentialsId: 'github', url: 'https://github.com/javahometech/myweb'
+                git url: 'https://github.com/PV-giri/myweb.git'
             }
         }
         stage("Maven Build"){
@@ -18,15 +18,15 @@ pipeline{
                 sh "mv target/*.war target/myweb.war"
             }
         }
-        stage("deploy-dev"){
+        stage("Tomcat-deploy"){
             steps{
-                sshagent(['tomcat-new']) {
+                sshagent(['deploy-ssh-key']) {
                 sh """
-                    scp -o StrictHostKeyChecking=no target/myweb.war  ec2-user@172.31.5.176:/opt/tomcat8/webapps/
+                    scp -o StrictHostKeyChecking=no target/myweb.war  ubuntu@54.176.5.177:/opt/tomcat/webapps/
                     
-                    ssh ec2-user@172.31.5.176 /opt/tomcat8/bin/shutdown.sh
+                    ssh ubuntu@54.176.5.177 /opt/tomcat/bin/shutdown.sh
                     
-                    ssh ec2-user@172.31.5.176 /opt/tomcat8/bin/startup.sh
+                    ssh ubuntu@54.176.5.177 /opt/tomcat/bin/startup.sh
                 
                 """
             }
